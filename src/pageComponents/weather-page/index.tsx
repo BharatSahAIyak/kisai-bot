@@ -536,13 +536,18 @@ const WeatherPage: React.FC = () => {
       </div>
       {config?.showCropAdvisory && (
         <div className={styles.cropContainer}>
-          <div
-            className={styles.heading}
-            style={{ background: '#DFF6D1' }}
-            data-testid="weather-page-advisory-text"
-          >
-            {t('label.todays_advisory')}
-          </div>
+         <div
+      className={styles.heading}
+      style={{ background: '#DFF6D1'}}
+      data-testid="weather-page-advisory-text"
+    >
+      {t('label.crop_advisory')}
+      <span style={{ marginLeft: '5px', fontStyle: 'italic' }}>
+{/*         
+        Just an Example here to demonstrate how it will look. Waiting for the API to integrate it*/}
+        - Last updated on {new Date().toLocaleDateString('en-GB')}
+      </span>
+    </div>
           <Grid
             data-testid="weather-page-crop-list"
             container
