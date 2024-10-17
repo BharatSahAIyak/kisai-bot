@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
-import styles from './index.module.css';
+import { useMemo } from 'react';
 import { useColorPalates } from '../../providers/theme-provider/hooks';
+import { BlinkingSpinner as ImportedBlinkingSpinner } from '@samagra-x/stencil-molecules';
 
 const BlinkingSpinner = () => {
   const theme = useColorPalates();
@@ -8,7 +8,7 @@ const BlinkingSpinner = () => {
     return theme?.primary?.contrastText;
   }, [theme?.primary?.contrastText]);
 
-  return <p className={styles.spinner} style={{ backgroundColor: secondaryColor }}></p>;
+  return <ImportedBlinkingSpinner spinerStyle={{ backgroundColor: secondaryColor }} />;
 };
 
 export default BlinkingSpinner;

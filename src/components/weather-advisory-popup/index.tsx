@@ -21,21 +21,21 @@ const WeatherAdvisoryPopup = (props: any) => {
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [btnDisabled, setBtnDisabled] = useState(false);
-  const abortControllerRef = useRef<AbortController | null>(null); 
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     return () => {
       if (abortControllerRef.current) {
-        abortControllerRef.current.abort();  
+        abortControllerRef.current.abort();
       }
       if (audioElement) {
-        audioElement.pause();  
+        audioElement.pause();
       }
     };
   }, [audioElement]);
 
   const playPauseAudio = async () => {
-    if (!open) return;  
+    if (!open) return;
     if (audioElement) {
       if (isPlaying) {
         audioElement.pause();
@@ -47,10 +47,10 @@ const WeatherAdvisoryPopup = (props: any) => {
     } else {
       setBtnDisabled(true);
       const url = await fetchAudio(props?.advisory?.descriptor?.long_desc);
-      
+
       if (!open) {
         setBtnDisabled(false);
-        return;  
+        return;
       }
       if (url) {
         const audio = new Audio(url);
@@ -68,8 +68,8 @@ const WeatherAdvisoryPopup = (props: any) => {
               audio.pause();
               setIsPlaying(false);
             } else {
-            setAudioElement(audio);
-            setIsPlaying(true);
+              setAudioElement(audio);
+              setIsPlaying(true);
             }
           })
           .catch((error) => {
@@ -83,22 +83,21 @@ const WeatherAdvisoryPopup = (props: any) => {
   };
 
   const handleClose = () => {
-     
     setOpen(false);
     props?.setShowWeatherAdvisoryPopup(false);
 
     if (audioElement) {
-      audioElement.pause(); 
-      setIsPlaying(false); 
+      audioElement.pause();
+      setIsPlaying(false);
     }
     if (abortControllerRef.current) {
-      abortControllerRef.current.abort();  
+      abortControllerRef.current.abort();
     }
   };
 
   const fetchAudio = async (text: string) => {
-    abortControllerRef.current = new AbortController(); 
-    const signal = abortControllerRef.current.signal;  
+    abortControllerRef.current = new AbortController();
+    const signal = abortControllerRef.current.signal;
     try {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_AI_TOOLS_API}/text-to-speech`,
@@ -113,14 +112,14 @@ const WeatherAdvisoryPopup = (props: any) => {
             orgId: process.env.NEXT_PUBLIC_ORG_ID || '',
             userId: localStorage.getItem('userID') || '',
           },
-          signal,  
+          signal,
         }
       );
       return response?.data?.url;
     } catch (error: any) {
       if (axios.isCancel(error)) {
       } else {
-      console.error('Error fetching audio:', error);
+        console.error('Error fetching audio:', error);
       }
       return null;
     }
@@ -264,15 +263,14 @@ const WeatherAdvisoryPopup = (props: any) => {
                   },
                 }}
                 startIcon={<VolumeUpIcon />}
-                 endIcon={
-    <span style={{ display: 'inline-block', width: '16px' }}>
-      {btnDisabled && <CircularProgress size={16} />}
-    </span>
-  }
->
+                endIcon={
+                  <span style={{ display: 'inline-block', width: '16px' }}>
+                    {btnDisabled && <CircularProgress size={16} />}
+                  </span>
+                }
+              >
                 {t('label.play_advisory')}
               </Button>
-
             </div>
           </div>
         </Fade>

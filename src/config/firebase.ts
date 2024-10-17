@@ -26,7 +26,11 @@ export const initializeFirebase = () => {
 };
 
 export const requestForToken = async () => {
-  if (typeof window !== 'undefined' && 'serviceWorker' in navigator && process.env.NEXT_PUBLIC_FIREBASE_APP_ID) {
+  if (
+    typeof window !== 'undefined' &&
+    'serviceWorker' in navigator &&
+    process.env.NEXT_PUBLIC_FIREBASE_APP_ID
+  ) {
     try {
       const currentToken = await getToken(messaging, {
         vapidKey: process.env.NEXT_PUBLIC_FIREBASE_FCM_VAPID_KEY,
