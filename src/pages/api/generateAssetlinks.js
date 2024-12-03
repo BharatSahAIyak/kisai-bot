@@ -8,13 +8,13 @@ async function generateAssetlinks() {
 
     const apiData = res.data.data.config.component.assetLinks;
 
-    const assetlinksTemplate = apiData.map(item => ({
+    const assetlinksTemplate = apiData.map((item) => ({
       relation: item.relation || [],
       target: {
-        namespace: "android_app",
-        package_name: item.target?.package_name || "",
-        sha256_cert_fingerprints: item.target?.sha256_cert_fingerprints || []
-      }
+        namespace: 'android_app',
+        package_name: item.target?.package_name || '',
+        sha256_cert_fingerprints: item.target?.sha256_cert_fingerprints || [],
+      },
     }));
 
     const wellKnownDir = './public/.well-known';
@@ -22,7 +22,10 @@ async function generateAssetlinks() {
       fs.mkdirSync(wellKnownDir, { recursive: true });
     }
 
-    fs.writeFileSync(`${wellKnownDir}/assetlinks.json`, JSON.stringify(assetlinksTemplate, null, 2)); 
+    fs.writeFileSync(
+      `${wellKnownDir}/assetlinks.json`,
+      JSON.stringify(assetlinksTemplate, null, 2)
+    );
     console.log('assetlinks.json has been successfully created!');
   } catch (error) {
     console.error('Failed to generate assetlinks.json:', error.message);

@@ -7,6 +7,7 @@ import { useColorPalates } from '../../providers/theme-provider/hooks';
 import { useConfig } from '../../hooks/useConfig';
 import { AppContext } from '../../context';
 import router from 'next/router';
+import { LanguagePicker as ImportedLanguagePicker } from '@samagra-x/stencil-molecules';
 
 const LanguagePicker = () => {
   const config = useConfig('component', 'sidebar');
@@ -35,35 +36,23 @@ const LanguagePicker = () => {
     { name: config?.languageName2, value: config?.languageCode2 },
   ];
   return (
-    <FormControl
-      sx={{
-        m: 1,
-        background: theme?.primary?.main,
-        border: 'none',
-        borderRadius: '10px',
-        height: '36px',
-      }}
-      size="small"
-      data-testid="language-picker"
-    >
-      <Select
-        value={activeLanguage}
-        onChange={handleChange}
-        displayEmpty
-        inputProps={{ 'aria-label': 'Without label' }}
-        sx={{
-          color: theme?.primary?.contrastText,
+    <ImportedLanguagePicker
+      activeLanguage={activeLanguage}
+      handleLanguageClick={handleChange}
+      languages={languages}
+      style={{
+        formControlStyle: {
+          background: theme?.primary?.main,
           border: 'none',
           borderRadius: '10px',
-          width: '85px',
           height: '36px',
-        }}
-      >
-        {map(languages, (lang) => (
-          <MenuItem value={lang?.value}>{lang?.name}</MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+          color: '#fff',
+        },
+        selectStyle: {
+          color: theme?.primary?.contrastText,
+        },
+      }}
+    />
   );
 };
 
