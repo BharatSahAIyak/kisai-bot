@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import styles from './index.module.css';
 import Typography from '@mui/material/Typography';
@@ -23,127 +22,117 @@ const FeedbackPage: React.FC = () => {
   const config = useConfig('component', 'feedbackPage');
   const t = useLocalization();
 
-useEffect(() => {
-  const storedRating = localStorage.getItem('feedbackRating');
-  
- 
-  if (storedRating && parseInt(storedRating) > 0) {
-    setStar(parseInt(storedRating));
-     
-    axios
-      .get(`${process.env.NEXT_PUBLIC_BFF_API_URL}/feedback/${localStorage.getItem('userID')}`, {
-        headers: {
-          botId: process.env.NEXT_PUBLIC_BOT_ID || '',
-          orgId: process.env.NEXT_PUBLIC_ORG_ID || '',
-        },
-      })
-      .then((res) => {
-        const { rating, review } = res.data;
-        
-         
-        if (rating) {
-          setStar(rating);
-          localStorage.setItem('feedbackRating', rating);
-          
-          if (review && review.trim()) {
-            setReview(review);
-            localStorage.setItem('feedbackReview', review);
+  useEffect(() => {
+    const storedRating = localStorage.getItem('feedbackRating');
+
+    if (storedRating && parseInt(storedRating) > 0) {
+      setStar(parseInt(storedRating));
+
+      axios
+        .get(`${process.env.NEXT_PUBLIC_BFF_API_URL}/feedback/${localStorage.getItem('userID')}`, {
+          headers: {
+            botId: process.env.NEXT_PUBLIC_BOT_ID || '',
+            orgId: process.env.NEXT_PUBLIC_ORG_ID || '',
+          },
+        })
+        .then((res) => {
+          const { rating, review } = res.data;
+
+          if (rating) {
+            setStar(rating);
+            localStorage.setItem('feedbackRating', rating);
+
+            if (review && review.trim()) {
+              setReview(review);
+              localStorage.setItem('feedbackReview', review);
+            }
           }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      localStorage.removeItem('feedbackReview');
+    }
+  }, []);
+
+  const handleRatingSubmit = () => {
+    if (star === 0) {
+      setShowWarning(true);
+      toast.error(t('label.empty_rating'));
+      return;
+    }
+
+    setLoading(true);
+
+    const payload = {
+      rating: star,
+      review: review.trim(),
+    };
+
+    axios
+      .post(
+        `${process.env.NEXT_PUBLIC_BFF_API_URL}/feedback/${localStorage.getItem('userID')}`,
+        payload,
+        {
+          headers: {
+            botId: process.env.NEXT_PUBLIC_BOT_ID || '',
+            orgId: process.env.NEXT_PUBLIC_ORG_ID || '',
+          },
         }
+      )
+      .then(() => {
+        toast.success(t('label.successful_feedback'));
+        localStorage.setItem('feedbackRating', star.toString());
+        openSidebar();
       })
       .catch((error) => {
-        console.log(error);
+        console.error('Error submitting rating:', error);
+        toast.error(t('label.unsuccessful_feedback'));
+      })
+      .finally(() => {
+        setLoading(false);
       });
-  } else {
-    
-    localStorage.removeItem('feedbackReview');
-  }
-}, []);
-
- 
-
-
-const handleRatingSubmit = () => {
-   
-  if (star === 0) {
-    setShowWarning(true); 
-    toast.error(t('label.empty_rating'));
-    return;  
-  }
-
-  setLoading(true);
-
-  const payload = {
-    rating: star,
-     review: review.trim(), 
   };
 
-  axios
-    .post(
-      `${process.env.NEXT_PUBLIC_BFF_API_URL}/feedback/${localStorage.getItem('userID')}`,
-      payload,
-      {
-        headers: {
-          botId: process.env.NEXT_PUBLIC_BOT_ID || '',
-          orgId: process.env.NEXT_PUBLIC_ORG_ID || '',
-        },
-      }
-    )
-    .then(() => {
-      toast.success(t('label.successful_feedback'));
-      localStorage.setItem('feedbackRating', star.toString());
-      openSidebar();
-    })
-    .catch((error) => {
-      console.error('Error submitting rating:', error);
-      toast.error(t('label.unsuccessful_feedback'));
-    })
-    .finally(() => {
-      setLoading(false);
-    });
-};
+  const handleReviewSubmit = () => {
+    if (review.trim() === '') {
+      setShowWarning(true);
 
- 
-const handleReviewSubmit = () => {
- 
-  if (review.trim() === '') {
-    setShowWarning(true);  
-    
-    return; 
-  }
+      return;
+    }
 
-  setLoading(true);
+    setLoading(true);
 
-  const payload = {
-    rating: star, 
-    review: review.trim(),  
+    const payload = {
+      rating: star,
+      review: review.trim(),
+    };
+
+    axios
+      .post(
+        `${process.env.NEXT_PUBLIC_BFF_API_URL}/feedback/${localStorage.getItem('userID')}`,
+        payload,
+        {
+          headers: {
+            botId: process.env.NEXT_PUBLIC_BOT_ID || '',
+            orgId: process.env.NEXT_PUBLIC_ORG_ID || '',
+          },
+        }
+      )
+      .then(() => {
+        toast.success(t('label.successful_feedback'));
+        localStorage.setItem('feedbackReview', review.trim());
+        openSidebar();
+      })
+      .catch((error) => {
+        console.error('Error submitting review:', error);
+        toast.error(t('label.unsuccessful_feedback'));
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
-
-  axios
-    .post(
-      `${process.env.NEXT_PUBLIC_BFF_API_URL}/feedback/${localStorage.getItem('userID')}`,
-      payload,
-      {
-        headers: {
-          botId: process.env.NEXT_PUBLIC_BOT_ID || '',
-          orgId: process.env.NEXT_PUBLIC_ORG_ID || '',
-        },
-      }
-    )
-    .then(() => {
-      toast.success(t('label.successful_feedback'));
-      localStorage.setItem('feedbackReview', review.trim());  
-      openSidebar();
-    })
-    .catch((error) => {
-      console.error('Error submitting review:', error);
-      toast.error(t('label.unsuccessful_feedback'));
-    })
-    .finally(() => {
-      setLoading(false);
-    });
-};
-
 
   const openSidebar = () => {
     setIsSidebarOpen(true);
@@ -203,17 +192,15 @@ const handleReviewSubmit = () => {
                 p: 1.5,
                 '&:hover': { backgroundColor: `${theme.primary.dark}` },
               }}
-              onClick={handleRatingSubmit} 
+              onClick={handleRatingSubmit}
             >
               {t('label.submit_review')}
             </Button>
-           {showWarning && (
-  <Typography
-    sx={{ color: 'red', fontSize: '1.5vh', textAlign: 'center' }}
-  >
-    {t('label.click_here')}
-  </Typography>
-)}
+            {showWarning && (
+              <Typography sx={{ color: 'red', fontSize: '1.5vh', textAlign: 'center' }}>
+                {t('label.click_here')}
+              </Typography>
+            )}
           </Box>
         )}
 
@@ -233,27 +220,27 @@ const handleReviewSubmit = () => {
               style={{ border: `2px solid ${theme.primary.main}` }}
               onChange={(e) => {
                 setReview(e.target.value);
-                setShowWarning(false);  
+                setShowWarning(false);
               }}
             />
 
-       <Button
-  id="reviewBtn"
-  variant="contained"
-  data-testid="feedback-review-button"
-  sx={{
-    mt: 2,
-    backgroundColor: `${theme.primary.main}`,
-    fontWeight: 'bold',
-    borderRadius: '10rem',
-    fontSize: '1.5vh',
-    p: 1.5,
-    '&:hover': { backgroundColor: `${theme.primary.dark}` },
-  }}
-  onClick={handleReviewSubmit} 
->
-  {t('label.submit_review')}
-</Button>
+            <Button
+              id="reviewBtn"
+              variant="contained"
+              data-testid="feedback-review-button"
+              sx={{
+                mt: 2,
+                backgroundColor: `${theme.primary.main}`,
+                fontWeight: 'bold',
+                borderRadius: '10rem',
+                fontSize: '1.5vh',
+                p: 1.5,
+                '&:hover': { backgroundColor: `${theme.primary.dark}` },
+              }}
+              onClick={handleReviewSubmit}
+            >
+              {t('label.submit_review')}
+            </Button>
           </Box>
         )}
       </Box>
@@ -265,8 +252,3 @@ const handleReviewSubmit = () => {
 };
 
 export default FeedbackPage;
-
-
-
-
- 

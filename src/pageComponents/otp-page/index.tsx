@@ -17,12 +17,13 @@ import { FormattedMessage } from 'react-intl';
 import { IconButton } from '@mui/material';
 import ArrowBackIosNewRoundedIcon from '@mui/icons-material/ArrowBackIosNewRounded';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { LoginComponent, ButtonProps, OtpProps } from '@samagra-x/stencil-molecules';
 
 const OtpPage: React.FC = () => {
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
-  const [otpError, setOtpError] = useState(false); 
+  const [otpError, setOtpError] = useState(false);
   const config = useConfig('component', 'otpPage');
   const theme = useColorPalates();
   const { otpLength, resendOtpTimer } = config;
@@ -79,7 +80,7 @@ const OtpPage: React.FC = () => {
   const handleLogin = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
-         if (otp.length === 0) {  
+      if (otp.length === 0) {
         setOtpError(true);
         toast.error(`${t('message.enter_otp')}`);
         return;
@@ -167,87 +168,37 @@ const OtpPage: React.FC = () => {
             </Typography>
           </div>
           {/* Form */}
-          <Typography
-            data-testid="otp-verification-line2"
-            variant="subtitle1"
-            textAlign="center"
-            color="#1E232C"
-            sx={{ m: 2 }}
-          >
-            <FormattedMessage
-              id="message.otp_message"
-              defaultMessage=""
-              values={{
-                mobile: mobile,
-                br: (chunks) => <br />,
-                b: (chunks) => <b>{chunks}</b>,
-              }}
+          <div className={styles.form}>
+            <LoginComponent
+              type="otp"
+              buttonProps={
+                {
+                  buttonText: t('label.submit'),
+                  handleNextTask: handleLogin,
+                  buttonStyle: { width: '90%', alignSelf: 'center' },
+                } as ButtonProps
+              }
+              otpProps={
+                {
+                  otpDidntReceiveText: t('message.didnt_receive'),
+                  resendOtpText: t('message.resend_again'),
+                  waitMessage: 'message.wait_minutes',
+                  value: otp,
+                  onChange: setOtp,
+                  optBoxSeparator: <></>,
+                  ResetOtpForgotPlaceHolder: 'Resent Again',
+                  handleResendOtpButton: resendOtp,
+                  mobileNumberForOtpScreen: '9907799970',
+                  countDownTime: 30,
+                  textBeforeOtpBox: 'message.otp_message',
+                  styles: {
+                    resendTextStyle: { color: theme?.primary?.main },
+                  },
+                } as OtpProps
+              }
             />
-          </Typography>
-          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-            <OTPInput
-              separator={<></>}
-              value={otp}
-              onChange={(value) => {
-                setOtp(value);
-                setOtpError(false);  
-              }}
-              length={parseInt(otpLength)}
-            />
-          </Box>
-          {otpError && (
-            <Typography color="error" variant="subtitle2" align="center" sx={{ mt: 1 }}>
-              {t('message.invalid_otp')}
-            </Typography>
-          )}
-          <div style={{ margin: '10px', textAlign: 'center' }} data-testid="resend-otp">
-            {countdown > 0 ? (
-              <span>
-                <FormattedMessage
-                  id="message.wait_minutes"
-                  defaultMessage="Please wait {countdown} seconds before resending OTP"
-                  values={{ countdown }}
-                />
-              </span>
-            ) : (
-              <>
-                <Typography variant="subtitle1" align="center" color="#838BA1">
-                  {t('message.didnt_receive')} &nbsp;
-                  <p
-                    onClick={resendOtp}
-                    style={{
-                      color: theme?.primary?.main || '#3da156',
-                      fontWeight: 'bold',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {t('message.resend_again')}
-                  </p>
-                </Typography>
-              </>
-            )}
           </div>
         </div>
-        <Button
-          data-testid="otp-submit-button"
-          fullWidth
-          variant="contained"
-          sx={{
-            textTransform: 'none',
-            m: 2,
-            height: '60px',
-            fontSize: '16px',
-            p: 1,
-            background: theme?.primary?.main,
-            borderRadius: '10px',
-            width: '90%',
-          }}
-          onClick={handleLogin}
-          disabled={loading}
-          endIcon={<ArrowForwardIcon />}
-        >
-          {loading ? <CircularProgress size={24} color="inherit" /> : `${t('label.submit')}`}
-        </Button>
       </div>
     </>
   );

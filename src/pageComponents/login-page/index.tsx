@@ -15,6 +15,8 @@ import LanguagePicker from '../../components/language-picker';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import DOMPurify from 'dompurify';
 
+import { LoginComponent, ButtonProps, InputProps } from '@samagra-x/stencil-molecules';
+
 const LoginPage: React.FC = () => {
   const config = useConfig('component', 'loginPage');
   const { logo, showLogo } = config;
@@ -48,9 +50,8 @@ const LoginPage: React.FC = () => {
     }
   }, []);
 
-  const handleLogin = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
+  const handleLogin = useCallback((): Promise<string> => {
+    return new Promise((resolve, reject) => {
       if (input.length === 10) {
         console.log('hello');
         setLoading(true);
@@ -61,24 +62,28 @@ const LoginPage: React.FC = () => {
             .then((response) => {
               setLoading(false);
               if (response.status === 200) {
-                // localStorage.setItem('phoneNumber',input)
                 router.push({ pathname: '/otp', query: { state: input } });
+                resolve('SUCCESS');
               } else {
                 setLoading(false);
                 toast.error(`${t('message.otp_not_sent')}`);
+                reject('FAILURE');
               }
             })
             .catch((err) => {
               setLoading(false);
               toast.error(err.message);
+              reject('FAILURE');
             });
         } else {
           toast.error(`${t('label.no_internet')}`);
+          reject('FAILURE');
         }
+      } else {
+        reject('FAILURE');
       }
-    },
-    [input]
-  );
+    });
+  }, [input]);
   console.log('debug login:', { config });
   return (
     <>
@@ -111,67 +116,24 @@ const LoginPage: React.FC = () => {
           </div>
         )}
         <div className={styles.form}>
-          {/* Form */}
-          <Typography
-            data-testid="login-page-title"
-            component="h1"
-            variant="h4"
-            fontWeight={'bold'}
-            textAlign="center"
-            width="100%"
-            color={theme?.primary?.main || 'black'}
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(t('label.subtitle')),
+          <LoginComponent
+            title={t('label.subtitle')}
+            type="mobile"
+            titleStyle={{
+              color: theme?.primary?.main || 'black',
+              fontSize: '34px',
             }}
-          ></Typography>
-          <Box
-            component="form"
-            onSubmit={handleLogin}
-            sx={{
-              mt: 1,
-              width: '100%',
-              textAlign: 'center',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              height: '100%',
+            buttonProps={{
+              handleNextTask: handleLogin,
+              buttonText: t('label.continue'),
             }}
-          >
-            <TextField
-              data-testid="mobile-input"
-              margin="normal"
-              error={!valid}
-              required
-              fullWidth
-              value={input}
-              helperText={!valid ? errorMessage : ''}
-              onChange={handleInput}
-              label={t('message.enter_mobile')}
-              name={'phone'}
-              autoComplete={'phone'}
-              autoFocus
-            />
-            {/* @ts-ignore */}
-            <Button
-              data-testid="login-button"
-              fullWidth
-              variant="contained"
-              sx={{
-                textTransform: 'none',
-                mt: 2,
-                height: '60px',
-                fontSize: '16px',
-                p: 1,
-                background: theme?.primary?.main,
-                borderRadius: '10px',
-              }}
-              onClick={handleLogin}
-              disabled={!valid || loading}
-              endIcon={<ArrowForwardIcon />}
-            >
-              {loading ? <CircularProgress size={24} color="inherit" /> : `${t('label.continue')}`}
-            </Button>
-          </Box>
+            inputProps={{
+              errorMessage: 'Mobile Number is required',
+              value: input,
+              onChange: setInput,
+              placeholder: t('message.enter_mobile'),
+            }}
+          />
         </div>
       </div>
     </>
